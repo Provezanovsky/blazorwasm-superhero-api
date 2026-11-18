@@ -1,6 +1,6 @@
 # BlazorWasmSuperHeroApi
 
-Atividade em C# e .NET 8 com Blazor WebAssembly. A página inicial busca heróis e vilões por nome e exibe nome, identidade, editora, primeira aparição, imagem e seis atributos dos personagens retornados.
+Feito em C# e .NET 8 com Blazor WebAssembly. A página inicial busca heróis e vilões por nome e exibe nome, identidade, editora, primeira aparição, imagem e seis atributos dos personagens retornados.
 
 ## Como executar
 
