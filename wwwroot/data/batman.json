@@ -1,0 +1,57 @@
+{
+    "response": "success",
+    "results-for": "batman",
+    "results": [
+        {
+            "id": "69",
+            "name": "Batman",
+            "powerstats": {
+                "intelligence": "81",
+                "strength": "40",
+                "speed": "29",
+                "durability": "55",
+                "power": "63",
+                "combat": "90"
+            },
+            "biography": {
+                "full-name": "Terry McGinnis",
+                "first-appearance": "Batman Beyond #1",
+                "publisher": "DC Comics"
+            }
+        },
+        {
+            "id": "70",
+            "name": "Batman",
+            "powerstats": {
+                "intelligence": "100",
+                "strength": "26",
+                "speed": "27",
+                "durability": "50",
+                "power": "47",
+                "combat": "100"
+            },
+            "biography": {
+                "full-name": "Bruce Wayne",
+                "first-appearance": "Detective Comics #27",
+                "publisher": "DC Comics"
+            }
+        },
+        {
+            "id": "71",
+            "name": "Batman II",
+            "powerstats": {
+                "intelligence": "88",
+                "strength": "11",
+                "speed": "33",
+                "durability": "28",
+                "power": "36",
+                "combat": "100"
+            },
+            "biography": {
+                "full-name": "Dick Grayson",
+                "first-appearance": "-",
+                "publisher": "Nightwing"
+            }
+        }
+    ]
+}

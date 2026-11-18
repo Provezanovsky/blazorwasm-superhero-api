@@ -1,0 +1,134 @@
+@page "/"
+@using System.Text.Json
+@inject SuperHeroService SuperHeroService
+
+<PageTitle>SuperHero Search</PageTitle>
+
+<section class="search-section" aria-labelledby="search-title">
+    <div class="intro">
+        <h1 id="search-title">Busque heróis<br /><em>e vilões.</em></h1>
+        <p>Encontre personagens pelo nome e compare seus atributos e primeiras aparições.</p>
+    </div>
+
+    <form class="search-panel" @onsubmit="SearchAsync" @onsubmit:preventDefault autocomplete="off">
+        <fieldset class="search-fields" disabled="@isLoading">
+            <legend class="visually-hidden">Busca de personagens</legend>
+            <div class="field">
+                <label for="hero-name">Nome do personagem</label>
+                <input id="hero-name" type="search" @bind="searchTerm" @bind:event="oninput"
+                       placeholder="Ex. Batman" spellcheck="false" />
+            </div>
+            <div class="field">
+                <label for="api-token">Token da SuperHero API</label>
+                <input id="api-token" type="password" @bind="accessToken" @bind:event="oninput"
+                       placeholder="Cole seu token de acesso" spellcheck="false" />
+            </div>
+            <div class="form-actions">
+                <button class="primary-button" type="submit">Pesquisar</button>
+                <button class="secondary-button" type="button" @onclick="ShowExampleAsync">Ver exemplo</button>
+            </div>
+        </fieldset>
+    </form>
+</section>
+
+<section class="results" aria-label="Resultados da busca" aria-busy="@isLoading.ToString().ToLowerInvariant()">
+    @if (isLoading)
+    {
+        <p class="feedback" role="status">Carregando personagens…</p>
+    }
+    else if (errorMessage is not null)
+    {
+        <p class="feedback error" role="alert">@errorMessage</p>
+    }
+    else if (submittedTerm is not null)
+    {
+        <div class="results-heading" role="status">
+            <h2>@(showingExample ? $"Exemplo de busca · {submittedTerm}" : $"Resultados para {submittedTerm}")</h2>
+            <p>@heroes.Count @(heroes.Count == 1 ? "personagem" : "personagens")</p>
+        </div>
+        @if (heroes.Count == 0)
+        {
+            <p class="feedback">Nenhum personagem encontrado. Experimente outro nome.</p>
+        }
+        else
+        {
+            <div class="hero-grid">
+                @foreach (var hero in heroes)
+                {
+                    <HeroCard @key="hero" Hero="hero" />
+                }
+            </div>
+        }
+    }
+</section>
+
+@code {
+    private string searchTerm = string.Empty;
+    private string accessToken = string.Empty;
+    private string? submittedTerm;
+    private string? errorMessage;
+    private bool showingExample;
+    private bool isLoading;
+    private IReadOnlyList<SuperHero> heroes = [];
+
+    private Task SearchAsync() => LoadHeroesAsync(useExample: false);
+
+    private Task ShowExampleAsync() => LoadHeroesAsync(useExample: true);
+
+    private async Task LoadHeroesAsync(bool useExample)
+    {
+        if (isLoading)
+        {
+            return;
+        }
+
+        errorMessage = null;
+        var term = useExample ? "Batman" : searchTerm.Trim();
+        var token = accessToken.Trim();
+
+        if (term is "" or "." or "..")
+        {
+            errorMessage = "Digite o nome de um personagem.";
+            return;
+        }
+
+        if (!useExample && (token is "" or "." or ".."))
+        {
+            errorMessage = "Informe seu token da SuperHero API ou selecione Ver exemplo.";
+            return;
+        }
+
+        searchTerm = term;
+        submittedTerm = term;
+        showingExample = useExample;
+        isLoading = true;
+        heroes = [];
+
+        try
+        {
+            heroes = useExample
+                ? await SuperHeroService.GetExampleAsync()
+                : await SuperHeroService.SearchAsync(token, term);
+        }
+        catch (SuperHeroApiException exception)
+        {
+            errorMessage = exception.Message;
+        }
+        catch (OperationCanceledException)
+        {
+            errorMessage = "A consulta demorou mais que o esperado. Tente novamente.";
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Não foi possível carregar os personagens. Confira a conexão e tente novamente.";
+        }
+        catch (JsonException)
+        {
+            errorMessage = "Os dados recebidos estão em um formato inesperado. Tente novamente.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

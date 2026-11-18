@@ -1,0 +1,68 @@
+<article class="hero-card">
+    <div class="hero-portrait">
+        @if (!imageFailed &&
+             Uri.TryCreate(Hero.Image?.Url, UriKind.Absolute, out var portrait) &&
+             portrait.Scheme == Uri.UriSchemeHttps)
+        {
+            <img src="@portrait.AbsoluteUri" alt="@($"Retrato de {Hero.Name}")"
+                 loading="lazy" referrerpolicy="no-referrer" @onerror="HideImage" />
+        }
+        else
+        {
+            <span>Imagem indisponível</span>
+        }
+    </div>
+    <div class="hero-info">
+        <h3>@DisplayValue(Hero.Name, "Personagem sem nome")</h3>
+        <p class="identity">@DisplayValue(Hero.Biography?.FullName, "Identidade não informada")</p>
+
+        <dl class="hero-biography">
+            <div>
+                <dt>Editora</dt>
+                <dd>@DisplayValue(Hero.Biography?.Publisher)</dd>
+            </div>
+            <div>
+                <dt>Primeira aparição</dt>
+                <dd>@DisplayValue(Hero.Biography?.FirstAppearance)</dd>
+            </div>
+        </dl>
+
+        <h4>Atributos</h4>
+        <dl class="hero-stats">
+            @foreach (var (label, value) in GetStats(Hero.Powerstats))
+            {
+                <div>
+                    <dt>@label</dt>
+                    <dd>@DisplayValue(value)</dd>
+                </div>
+            }
+        </dl>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public SuperHero Hero { get; set; } = default!;
+
+    private bool imageFailed;
+
+    private void HideImage() => imageFailed = true;
+
+    private static (string Label, string? Value)[] GetStats(Powerstats? stats) =>
+    [
+        ("Inteligência", stats?.Intelligence),
+        ("Força", stats?.Strength),
+        ("Velocidade", stats?.Speed),
+        ("Resistência", stats?.Durability),
+        ("Poder", stats?.Power),
+        ("Combate", stats?.Combat)
+    ];
+
+    private static string DisplayValue(string? value, string fallback = "—")
+    {
+        var text = value?.Trim();
+        return text is null or "" or "-" || string.Equals(text, "null", StringComparison.OrdinalIgnoreCase)
+            ? fallback
+            : text;
+    }
+}
